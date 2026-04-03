@@ -11,8 +11,13 @@ const { requestLogger } = require('./middleware/logger');
 
 const app = express();
 
+
+const BASE_URL = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
+
+// Security middleware
 app.use(helmet());
 
+// CORS
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN || '*',
@@ -21,13 +26,17 @@ app.use(
   })
 );
 
+// Body parsers
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
+// Logger
 app.use(requestLogger);
 
+// Rate limiter
 app.use('/api', apiLimiter);
 
+// Swagger Docs
 app.use(
   '/api-docs',
   swaggerUi.serve,
@@ -40,20 +49,24 @@ app.use(
   })
 );
 
+// API Routes
 app.use('/api/v1', routes);
 
+// Root Route
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
-    message: '💰 Finance Data Processing & Access Control API',
+    message: 'Finance Data Processing & Access Control API',
     version: '1.0.0',
-    docs: `http://localhost:${process.env.PORT || 5000}/api-docs`,
-    health: `http://localhost:${process.env.PORT || 5000}/api/v1/health`,
+    docs: `${BASE_URL}/api-docs`,
+    health: `${BASE_URL}/api/v1/health`,
   });
 });
 
+// 404 Handler
 app.use(notFound);
 
+// Global Error Handler
 app.use(errorHandler);
 
 module.exports = app;
