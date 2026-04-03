@@ -1,140 +1,185 @@
-# 💰 Finance Data Processing & Access Control System
+# Finance Data Processing & Access Control System
 
-A **production-ready** Node.js/Express backend for financial data management with Role-Based Access Control (RBAC), JWT authentication, MongoDB aggregations for dashboard analytics, Swagger API documentation, rate limiting, and structured logging.
+A production-ready Node.js/Express backend for financial data management with Role-Based Access Control (RBAC), JWT authentication, MongoDB aggregations for dashboard analytics, Swagger API documentation, rate limiting, and structured logging.
 
 ---
 
-## 📁 Folder Structure
+## Folder Structure
 
 ```
 zorvyn/
-├── server.js                     # Entry point — boots server + DB
-├── .env                          # Environment variables
-├── .env.example                  # Example env (commit this)
+├── server.js
+├── .env
+├── .env.example
 ├── .gitignore
 ├── package.json
-├── logs/                         # Winston log files (auto-created)
+├── logs/
 └── src/
-    ├── app.js                    # Express app setup
+    ├── app.js
     ├── config/
-    │   ├── db.js                 # MongoDB connection
-    │   └── swagger.js            # Swagger/OpenAPI config
+    │   ├── db.js
+    │   └── swagger.js
     ├── models/
-    │   ├── User.js               # User schema (bcrypt, roles)
-    │   └── FinancialRecord.js    # Record schema (soft delete)
+    │   ├── User.js
+    │   └── FinancialRecord.js
     ├── middleware/
-    │   ├── auth.js               # JWT verification
-    │   ├── rbac.js               # Role-based access control
-    │   ├── errorHandler.js       # Global error handler
-    │   ├── rateLimiter.js        # API + Auth rate limiting
-    │   └── logger.js             # Morgan → Winston request logs
+    │   ├── auth.js
+    │   ├── rbac.js
+    │   ├── errorHandler.js
+    │   ├── rateLimiter.js
+    │   └── logger.js
     ├── controllers/
     │   ├── auth.controller.js
     │   ├── record.controller.js
     │   └── dashboard.controller.js
     ├── services/
-    │   ├── auth.service.js       # Auth business logic
-    │   ├── record.service.js     # Record CRUD + filters
-    │   └── dashboard.service.js  # MongoDB aggregation pipelines
+    │   ├── auth.service.js
+    │   ├── record.service.js
+    │   └── dashboard.service.js
     ├── routes/
-    │   ├── index.js              # Route aggregator + health check
-    │   ├── auth.routes.js        # /api/v1/auth/*
-    │   ├── record.routes.js      # /api/v1/records/*
-    │   └── dashboard.routes.js   # /api/v1/dashboard/*
+    │   ├── index.js
+    │   ├── auth.routes.js
+    │   ├── record.routes.js
+    │   └── dashboard.routes.js
     ├── validators/
-    │   ├── auth.validator.js     # Joi schemas for auth
-    │   └── record.validator.js   # Joi schemas for records
+    │   ├── auth.validator.js
+    │   └── record.validator.js
     └── utils/
-        ├── jwt.util.js           # Token generation/verification
-        ├── response.util.js      # Standardized response helpers
-        ├── pagination.util.js    # Pagination builders
-        ├── logger.util.js        # Winston logger instance
-        └── seeder.js             # DB seed script
+        ├── jwt.util.js
+        ├── response.util.js
+        ├── pagination.util.js
+        ├── logger.util.js
+        └── seeder.js
 ```
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
-- Node.js >= 16
-- MongoDB (local or Atlas)
+
+* Node.js >= 16
+* MongoDB (local or Atlas)
+
+---
 
 ### Installation
 
 ```bash
-# 1. Install dependencies
 npm install
+```
 
-# 2. Copy and configure environment variables
+```bash
 cp .env.example .env
-# Edit .env and set MONGO_URI, JWT_SECRET
+```
 
-# 3. (Optional) Seed the database with sample data
+Edit `.env` and set:
+
+* MONGO_URI
+* JWT_SECRET
+* BASE_URL
+
+---
+
+### Seed Database (Optional)
+
+```bash
 npm run seed
+```
 
-# 4. Start development server
+---
+
+### Run Server
+
+```bash
 npm run dev
 ```
 
-Server runs at: **http://localhost:5000**
-Swagger Docs: **http://localhost:5000/api-docs**
+Server:
+
+```
+http://localhost:5000
+```
+
+Swagger Docs:
+
+```
+http://localhost:5000/api-docs
+```
 
 ---
 
-## 📡 API Endpoints
+## Live API
+
+```
+https://zorvyn-finance-api-1.onrender.com
+```
+
+Swagger Docs:
+
+```
+https://zorvyn-finance-api-1.onrender.com/api-docs
+```
+
+---
+
+## API Endpoints
 
 ### Authentication — `/api/v1/auth`
 
-| Method | Endpoint                      | Access  | Description          |
-|--------|-------------------------------|---------|----------------------|
-| POST   | `/auth/register`              | Public  | Register new user    |
-| POST   | `/auth/login`                 | Public  | Login, get JWT       |
-| GET    | `/auth/me`                    | All     | Current user profile |
-| GET    | `/auth/users`                 | Admin   | List all users       |
-| PATCH  | `/auth/users/:id/role`        | Admin   | Assign role          |
-| PATCH  | `/auth/users/:id/activate`    | Admin   | Activate user        |
-| PATCH  | `/auth/users/:id/deactivate`  | Admin   | Deactivate user      |
+| Method | Endpoint                   | Access |
+| ------ | -------------------------- | ------ |
+| POST   | /auth/register             | Public |
+| POST   | /auth/login                | Public |
+| GET    | /auth/me                   | All    |
+| GET    | /auth/users                | Admin  |
+| PATCH  | /auth/users/:id/role       | Admin  |
+| PATCH  | /auth/users/:id/activate   | Admin  |
+| PATCH  | /auth/users/:id/deactivate | Admin  |
 
-### Financial Records — `/api/v1/records`
+---
 
-| Method | Endpoint        | Access          | Description                        |
-|--------|-----------------|-----------------|------------------------------------|
-| GET    | `/records`      | Viewer+         | List records (filter/search/page)  |
-| GET    | `/records/:id`  | Viewer+         | Get single record                  |
-| POST   | `/records`      | Analyst+        | Create record                      |
-| PUT    | `/records/:id`  | Analyst+        | Update record                      |
-| DELETE | `/records/:id`  | Admin           | Soft delete record                 |
+### Records — `/api/v1/records`
+
+| Method | Endpoint     | Access   |
+| ------ | ------------ | -------- |
+| GET    | /records     | Viewer+  |
+| GET    | /records/:id | Viewer+  |
+| POST   | /records     | Analyst+ |
+| PUT    | /records/:id | Analyst+ |
+| DELETE | /records/:id | Admin    |
+
+---
 
 ### Dashboard — `/api/v1/dashboard`
 
-| Method | Endpoint                    | Access   | Description                  |
-|--------|-----------------------------|----------|------------------------------|
-| GET    | `/dashboard/summary`        | Analyst+ | Income, expenses, net balance|
-| GET    | `/dashboard/categories`     | Analyst+ | Category-wise breakdown      |
-| GET    | `/dashboard/trends`         | Analyst+ | Monthly income vs expenses   |
-| GET    | `/dashboard/recent`         | Viewer+  | Recent transactions          |
-| GET    | `/dashboard/top-categories` | Analyst+ | Top spending categories      |
+| Method | Endpoint                  | Access   |
+| ------ | ------------------------- | -------- |
+| GET    | /dashboard/summary        | Analyst+ |
+| GET    | /dashboard/categories     | Analyst+ |
+| GET    | /dashboard/trends         | Analyst+ |
+| GET    | /dashboard/recent         | Viewer+  |
+| GET    | /dashboard/top-categories | Analyst+ |
 
 ---
 
-## 🔐 Role-Based Access Control (RBAC)
+## Role-Based Access Control (RBAC)
 
-| Permission         | Viewer | Analyst | Admin |
-|--------------------|--------|---------|-------|
-| Read records       | ✅     | ✅      | ✅    |
-| View recent txns   | ✅     | ✅      | ✅    |
-| Create records     | ❌     | ✅      | ✅    |
-| Update records     | ❌     | ✅      | ✅    |
-| Delete records     | ❌     | ❌      | ✅    |
-| View analytics     | ❌     | ✅      | ✅    |
-| Manage users       | ❌     | ❌      | ✅    |
+| Permission               | Viewer | Analyst | Admin |
+| ------------------------ | ------ | ------- | ----- |
+| Read records             | Yes    | Yes     | Yes   |
+| View recent transactions | Yes    | Yes     | Yes   |
+| Create records           | No     | Yes     | Yes   |
+| Update records           | No     | Yes     | Yes   |
+| Delete records           | No     | No      | Yes   |
+| View analytics           | No     | Yes     | Yes   |
+| Manage users             | No     | No      | Yes   |
 
 ---
 
-## 📦 Example Request / Response
+## Example Request / Response
 
-### Register
+### Login
 
 ```http
 POST /api/v1/auth/register
@@ -165,12 +210,7 @@ Content-Type: application/json
 }
 ```
 
-### Get Records (with filters)
-
-```http
-GET /api/v1/records?type=expense&category=Food&page=1&limit=5&sortBy=date&sortOrder=desc
-Authorization: Bearer <token>
-```
+Response:
 
 ```json
 {
@@ -187,6 +227,8 @@ Authorization: Bearer <token>
   }
 }
 ```
+
+---
 
 ### Dashboard Summary
 
@@ -212,27 +254,36 @@ Authorization: Bearer <analyst-token>
 
 ---
 
-## 🧱 Key Design Decisions
+## Seed Credentials
 
-| Decision | Rationale |
-|----------|-----------|
-| **Singleton services** | `new AuthService()` exported as singleton — avoids re-instantiation on each request |
-| **Soft delete** | `isDeleted` flag on records — auditable, recoverable, Mongoose pre-hook auto-excludes |
-| **Role hierarchy** | Permission matrix in `rbac.js` — admin inherits analyst, analyst inherits viewer |
-| **Lean middleware auth** | JWT middleware fetches full user from DB to catch deactivated/deleted accounts |
-| **Compound indexes** | `{ type, date, isDeleted }` on FinancialRecord accelerates dashboard aggregate pipelines |
-| **Body size limit** | 10KB max body — rejects abnormally large payloads early |
-| **Separate auth limiter** | Auth routes have stricter rate limiting (10/15min) vs global (100/15min) |
-| **abortEarly: false** | Joi returns all validation errors at once — better DX |
+| Role    | Email                                             | Password   |
+| ------- | ------------------------------------------------- | ---------- |
+| Admin   | [admin@finance.com](mailto:admin@finance.com)     | admin123   |
+| Analyst | [analyst@finance.com](mailto:analyst@finance.com) | analyst123 |
+| Viewer  | [viewer@finance.com](mailto:viewer@finance.com)   | viewer123  |
 
 ---
 
-## 🌱 Seed Credentials
+## Design Decisions
 
-After running `npm run seed`:
+* Service layer used for separation of concerns
+* RBAC implemented using middleware
+* MongoDB aggregation for dashboard analytics
+* Soft delete using `isDeleted`
+* Joi validation for request validation
+* Centralized error handling
+* Rate limiting for API protection
 
-| Role    | Email                  | Password   |
-|---------|------------------------|------------|
-| Admin   | admin@finance.com      | admin123   |
-| Analyst | analyst@finance.com    | analyst123 |
-| Viewer  | viewer@finance.com     | viewer123  |
+---
+
+## Notes
+
+* API may take 30–60 seconds to wake up (Render free tier)
+* Use Swagger UI for testing endpoints
+* Use Bearer token for protected routes
+
+---
+
+## Author
+
+Bhupathi Sanjay
