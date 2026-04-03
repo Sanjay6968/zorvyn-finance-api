@@ -5,14 +5,17 @@ const logger = require('./src/utils/logger.util');
 
 const PORT = process.env.PORT || 5000;
 
+
+const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+
 const startServer = async () => {
   try {
     await connectDB();
 
     const server = app.listen(PORT, () => {
-      logger.info(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-      logger.info(`📚 API Docs: http://localhost:${PORT}/api-docs`);
-      logger.info(`❤️  Health:   http://localhost:${PORT}/api/v1/health`);
+      logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+      logger.info(`API Docs: ${BASE_URL}/api-docs`);
+      logger.info(` Health:   ${BASE_URL}/api/v1/health`);
     });
 
     const shutdown = (signal) => {
